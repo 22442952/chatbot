@@ -1,7 +1,7 @@
 import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import os
-import MongoClient from pymongo 
+from pymongo import MongoClient  
 
 # Set up the Telegram bot
 bot_token = 'Telegram_token_here'
