@@ -6,7 +6,7 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     LANG=C.UTF-8 \
     DEBIAN_FRONTEND=noninteractive \
-    TZ=UTC
+    TZ=GMT+8
 
 # Install dependencies
 RUN apt-get update && \
