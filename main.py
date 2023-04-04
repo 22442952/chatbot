@@ -1,16 +1,28 @@
-# This is a sample Python script.
+import telegram
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+# Set up the Telegram bot
+bot_token = 'Telegram_token_here'
+bot = telegram.Bot(token=bot_token)
+updater = Updater(token=bot_token, use_context=True)
+dispatcher = updater.dispatcher
 
+# Define a command handler for the /start command
+def start(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id, text='Hello! Welcome to my chatbot.')
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+# Define a message handler for all non-command messages
+def message(update, context):
+    # Get the user's message and process it
+    message_text = update.message.text
+    # TODO: process the message and generate a response
+    response_text = 'This is a response to your message.'
+    # Send the response back to the user
+    context.bot.send_message(chat_id=update.effective_chat.id, text=response_text)
 
+# Add the handlers to the dispatcher
+dispatcher.add_handler(CommandHandler('start', start))
+dispatcher.add_handler(MessageHandler(Filters.text, message))
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('Andy')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+# Start the bot
+updater.start_polling()
