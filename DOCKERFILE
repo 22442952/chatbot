@@ -1,0 +1,41 @@
+# Set base image to Python 3.8
+FROM python:3.10
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    LANG=C.UTF-8 \
+    DEBIAN_FRONTEND=noninteractive \
+    TZ=UTC
+
+# Install dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+        build-essential \
+        git \
+        libpq-dev \
+        libssl-dev \
+        libffi-dev \
+        python3-dev \
+        libxml2-dev \
+        libxslt-dev \
+        zlib1g-dev \
+        curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set work directory
+WORKDIR /app
+
+# Copy and install requirements
+COPY requirements.txt /app/
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy source code
+COPY . /app/
+
+# Expose port
+EXPOSE 80
+
+# Run the application
+CMD ["python", "main.py"]
