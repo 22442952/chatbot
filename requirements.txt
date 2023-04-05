@@ -2,3 +2,7 @@ telegram
 pymongo
 telebot
 wheel
+
+#flask
+#flask-login
+#flask-alchemy
