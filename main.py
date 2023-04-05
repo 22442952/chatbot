@@ -1,7 +1,9 @@
 import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
-import os
-from pymongo import MongoClient  
+import logging
+import telebot
+# import os
+# from pymongo import MongoClient  
 
 # Set up the Telegram bot
 bot_token = '6028594612:AAGVp2lE1aJtlcx6K1iy-ScAz3Bh0M9_T2c'
@@ -45,4 +47,17 @@ dispatcher.add_handler(MessageHandler(Filters.text, message))
 #    print(document)
 
 # Start the bot
+
+# Telegram logging function
+
 updater.start_polling()
+
+logging.basicConfig(filename='bot.log', level=logging.INFO)
+
+bot = telebot.TeleBot('6028594612:AAGVp2lE1aJtlcx6K1iy-ScAz3Bh0M9_T2c')
+
+@bot.message_handler(func=lambda message: True)
+def log_message(message):
+    logging.info(f'{message.chat.username}: {message.text}')
+
+bot.polling()

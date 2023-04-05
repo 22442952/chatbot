@@ -1,2 +1,4 @@
 telegram
 pymongo
+telebot
+wheel
