@@ -3,6 +3,7 @@ from telegram.ext import CommandHandler, MessageHandler, Filters, Updater
 from pymongo import MongoClient
 import logging
 import telebot
+import config
 
 # Connect to MongoDB database
 client = MongoClient('mongodb://localhost:27017/')
@@ -11,7 +12,7 @@ users = db['users']
 interactive_data = db['interactive_data']
 
 # Telegram bot token
-bot = telegram.Bot(token='6028594612:AAGVp2lE1aJtlcx6K1iy-ScAz3Bh0M9_T2c')
+bot = telegram.Bot(token='api_key')
 
 # Command handler to register a new user
 def start(update, context):
@@ -75,7 +76,7 @@ def process_answer(update, context):
         update.message.reply_text('You have not started the quiz yet.')
 
 # Set up the Telegram bot handlers
-updater = Updater(token='6028594612:AAGVp2lE1aJtlcx6K1iy-ScAz3Bh0M9_T2c', use_context=True)
+updater = Updater(token='api_key', use_context=True)
 dispatcher = updater.dispatcher
 dispatcher.add_handler(CommandHandler('start_quiz', start_quiz))
 dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, process_answer))
@@ -94,7 +95,7 @@ updater.start_polling()
 
 logging.basicConfig(filename='bot.log', level=logging.INFO)
 
-bot = telebot.TeleBot('6028594612:AAGVp2lE1aJtlcx6K1iy-ScAz3Bh0M9_T2c')
+bot = telebot.TeleBot('api_key')
 
 @bot.message_handler(func=lambda message: True)
 def log_message(message):

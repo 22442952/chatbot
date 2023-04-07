@@ -1,8 +1,9 @@
 telegram
-pymongo
+logging
 telebot
-wheel
 
+#wheel
+# pymongo
 #flask
 #flask-login
 #flask-alchemy
