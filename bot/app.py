@@ -3,7 +3,6 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
 import json
 
-# Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017/')
 db = client['chatbot_db']
 
@@ -17,13 +16,16 @@ else:
     collection = db.create_collection('response')
     logging.info('Created MongoDB collection')
 
-# Load data from JSON file
-with open('data/career_paths.json') as f:
-    data = json.load(f)
-
-# Insert the data into the collection
-result = collection.insert_many(data)
-logging.info('Inserted sample data into MongoDB collection')
+    # Check if the JSON data has already been imported
+    if collection.count_documents({}) == 0:
+        # Import the data into the collection
+        with open('data/career_paths.json') as f:
+            data = json.load(f)
+            for item in data:
+                collection.insert_one(item)
+            logging.info('Inserted sample data into MongoDB collection')
+    else:
+        logging.info('JSON data already imported into MongoDB collection')
 
     # Close the MongoDB connection
 client.close()
