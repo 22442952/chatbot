@@ -1,9 +1,3 @@
-telegram
-logging
-telebot
-
-#wheel
-# pymongo
-#flask
-#flask-login
-#flask-alchemy
+python-telegram-bot==13.7
+pymongo==3.12.1
+python-dotenv==0.19.1

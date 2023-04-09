@@ -1,0 +1,14 @@
+[
+    {
+        "keywords": "software developer",
+        "response": "A software developer is a person who designs, develops, and maintains software. They typically work with programming languages such as Java, Python, and C++. Software developers can work on a variety of projects, from building websites to developing mobile applications."
+    },
+    {
+        "keywords": "data scientist",
+        "response": "A data scientist is a person who uses statistical and computational methods to analyze and interpret complex data sets. They typically work with programming languages such  as Python and R, and they may work on a variety of projects, from building predictive models to conducting exploratory data analysis."
+    },
+    {
+        "keywords": "network engineer",
+        "response": "A network engineer is a person who designs, implements, and maintains computer networks. They typically work with network protocols such as TCP/IP and routing protocols such as OSPF and BGP. Network engineers can work on a variety of projects, from building small office networks to designing large-scale enterprise networks."
+    }
+]
