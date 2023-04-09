@@ -1,5 +1,6 @@
 import logging
 import json
+import re
 # import os
 from pymongo import MongoClient, DESCENDING
 from telegram import Update
@@ -71,7 +72,7 @@ def start(update, context):
 
 def help(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="You can ask me about different IT job and I'll suggest you with some require skill.")
-    
+
 def add_response(update, context):
     """Add a new response to the database."""
     # Get the keywords and response from the user input
@@ -79,13 +80,14 @@ def add_response(update, context):
     keywords = user_input[0:2]
     response = user_input[3:]
 
-    # Split the keywords string into separate keywords
-    keywords = [keyword.strip() for keyword in ','.join(keywords).split(',')]
-
+    # Join the keywords and response into strings
+    keywords_str = " ".join(keywords)
+    response_str = " ".join(response)
+   
     # Save the new response to the database
     response_data = {
-        'keywords': " ".join(keywords),
-        'response': " ".join(response)
+        'keywords': keywords_str,
+        'response': response_str
     }
     collection.insert_one(response_data)
      
@@ -96,34 +98,39 @@ def add_response(update, context):
 
 # Define search location and method   
 def search(update, context):
-    keywords = update.message.text.lower().split()
+    keywords = update.message.text.split()
     client = MongoClient('mongodb://localhost:27017/')
     db = client['chatbot_db']
     collection = db['response']
-    query = {"keywords": {"$all": keywords}}
+    regex = re.compile('|'.join(keywords), re.IGNORECASE)
+    query = {"keywords": {"$all": [regex]}}
     result = collection.find_one(query, sort=[('_id', DESCENDING)])
 
 # Set up response message with different search result    
+
 def handle_message(update, context):
     """Handle incoming messages."""
     message = update.message.text.lower()
     
+    found = False
     for response in collection.find():
         keywords = response['keywords'].split()
         if all(keyword in message for keyword in keywords):
             context.bot.send_message(chat_id=update.effective_chat.id, text=response['response'])
             # context.bot.send_message(chat_id=update.effective_chat.id, text="Here's some more information:\n{}".format(response))
+            found = True
             break
         elif any(keyword.startswith(message) for keyword in keywords):
-            context.bot.send_message(chat_id=update.effective_chat.id, text=response['response'])
-            # context.bot.send_message(chat_id=update.effective_chat.id, text="Here's some more information:\n{}".format(response))
-            break
-        else :
+                context.bot.send_message(chat_id=update.effective_chat.id, text=response['response'])
+                # context.bot.send_message(chat_id=update.effective_chat.id, text="Here's some more information:\n{}".format(response))
+                found = True
+                break
+    
+    if not found:
             context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I couldn't find any information about that keyword.")
             
-
+# Set up the Telegram bot handlers
 def main():
-    # Set up the Telegram bot and add handlers
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help))
