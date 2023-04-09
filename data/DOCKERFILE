@@ -1,5 +1,5 @@
 # Use an official Python runtime as a parent image
-FROM python:3.10
+FROM python:3.7.9
 
 # Set the working directory to /app
 WORKDIR /app
@@ -14,4 +14,4 @@ RUN pip install --trusted-host pypi.python.org -r requirements.txt
 EXPOSE 8080
 
 # Start the bot
-CMD ["python", "-u", "bot/main.py"]
+CMD ["python", "-u", "bot/app.py"]

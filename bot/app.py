@@ -76,6 +76,8 @@ def handle_message(update, context):
                 context.bot.send_message(chat_id=update.effective_chat.id, text=response["response"])
                 context.bot.send_message(chat_id=update.effective_chat.id, text="Here's some more information:\n{}".format(response))
                 break
+            else:
+                context.bot.send_message(chat_id=update.effective_chat.id, text='Sorry, I couldn\'t find any information about that keyword.')
 
 def main():
     # Set up the Telegram bot and add handlers
