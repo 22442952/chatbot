@@ -33,12 +33,12 @@ def error_handler(update: Update, context: CallbackContext):
     logging.error(msg="Exception occurred", exc_info=context.error)
 
 # Create the Telegram bot
-updater = Updater(token='6028594612:AAGVp2lE1aJtlcx6K1iy-ScAz3Bh0M9_T2c', use_context=True)
+updater = Updater(token='<Telegram ChatBot Token>', use_context=True)
 
 # Register the error handler
 updater.dispatcher.add_error_handler(error_handler)
 
-# Connect MongoDB
+# Connect local MongoDB for function test
 client = MongoClient('mongodb://localhost:27017/')
 db = client['chatbot_db']
 
@@ -52,9 +52,8 @@ else:
     collection = db.create_collection('response')
     logging.info('Created MongoDB collection')
 
-    # Check if the JSON data has already been imported
+    # Check if the JSON data has already been exist
     if collection.count_documents({}) == 0:
-        # Import the data into the collection
         with open('data/career_paths.json') as f:
             data = json.load(f)
             for item in data:
@@ -63,15 +62,18 @@ else:
     else:
         logging.info('JSON data already imported into MongoDB collection')
 
-    # Close the MongoDB connection
+# Close the MongoDB connection
 client.close()
 
 # Define command handlers
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome to the IT Career Bot! How can I help you?")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome to the IT Career Bot! What can I help you?")
 
 def help(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="You can ask me about different IT job and I'll suggest you with some require skill.")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="You can ask me about different kind of IT job and I'll suggest you with some require skill.")
+    
+def end(update, context):
+    context.bot.send_message(chat_id=update.effective_chat.id, text="I hope these information could help you, bye")
 
 def add_response(update, context):
     """Add a new response to the database."""
@@ -107,11 +109,9 @@ def search(update, context):
     result = collection.find_one(query, sort=[('_id', DESCENDING)])
 
 # Set up response message with different search result    
-
 def handle_message(update, context):
     """Handle incoming messages."""
     message = update.message.text.lower()
-    
     found = False
     for response in collection.find():
         keywords = response['keywords'].split()
@@ -127,7 +127,7 @@ def handle_message(update, context):
                 break
     
     if not found:
-            context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I couldn't find any information about that keyword.")
+            context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I couldn't find any information about this keyword.")
             
 # Set up the Telegram bot handlers
 def main():
@@ -135,6 +135,7 @@ def main():
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help))
     dispatcher.add_handler(CommandHandler("add_response", add_response))
+    dispatcher.add_handler(CommandHandler("end", end))
     dispatcher.add_handler(MessageHandler(Filters.text, handle_message))
 
     # Start the bot
