@@ -6,7 +6,6 @@ import json
 # Connect to MongoDB
 client = MongoClient('mongodb://localhost:27017/')
 db = client['chatbot_db']
-responses_collection = db['response'] 
 
 # Check if the MongoDB collection exists
 if 'response' in db.list_collection_names():
@@ -18,11 +17,16 @@ else:
     collection = db.create_collection('response')
     logging.info('Created MongoDB collection')
 
-        # Insert the data into the collection
-    with open('data/career_paths.json') as f:
-        data = json.load(f)
-#        collection.insert_many(data)
-        logging.info('Inserted sample data into MongoDB collection')
+# Load data from JSON file
+with open('data/career_paths.json') as f:
+    data = json.load(f)
+
+# Insert the data into the collection
+result = collection.insert_many(data)
+logging.info('Inserted sample data into MongoDB collection')
+
+    # Close the MongoDB connection
+client.close()
 
 # Define command handlers
 def start(update, context):
@@ -46,12 +50,13 @@ def add_response(update, context):
         'keywords': " ".join(keywords),
         'response': " ".join(response)
     }
-    responses_collection.insert_one(response_data)
+    collection.insert_one(response_data)
      
      # Send a confirmation message to the user
     doc = {"keywords": keywords, "response": response}
     collection.insert_one(doc)
     context.bot.send_message(chat_id=update.effective_chat.id, text="Thanks, I've added that to my responses.")
+
     
 def search(update, context):
     keywords = update.message.text.lower().split()
@@ -60,24 +65,23 @@ def search(update, context):
     collection = db['response']
     query = {"keywords": {"$all": keywords}}
     result = collection.find_one(query, sort=[('_id', DESCENDING)])
-
-        
+    
 def handle_message(update, context):
     """Handle incoming messages."""
     message = update.message.text.lower()
     
-    for response in responses_collection.find():
-        for keyword in response["keywords"]:
-            if keyword in message:
-                context.bot.send_message(chat_id=update.effective_chat.id, text="Here's some more information:\n{}".format(" ".join(response["keywords"])))
-                context.bot.send_message(chat_id=update.effective_chat.id, text="Here's some more information:\n{}".format(response))
-                break
-            elif keyword.startswith(message):
-                context.bot.send_message(chat_id=update.effective_chat.id, text=response["response"])
-                context.bot.send_message(chat_id=update.effective_chat.id, text="Here's some more information:\n{}".format(response))
-                break
-            else:
-                context.bot.send_message(chat_id=update.effective_chat.id, text='Sorry, I couldn\'t find any information about that keyword.')
+    for response in collection.find():
+        keywords = response['keywords'].split()
+        if all(keyword in message for keyword in keywords):
+            context.bot.send_message(chat_id=update.effective_chat.id, text=response['response'])
+            # context.bot.send_message(chat_id=update.effective_chat.id, text="Here's some more information:\n{}".format(response))
+            break
+        elif any(keyword.startswith(message) for keyword in keywords):
+            context.bot.send_message(chat_id=update.effective_chat.id, text=response['response'])
+            # context.bot.send_message(chat_id=update.effective_chat.id, text="Here's some more information:\n{}".format(response))
+            break
+    else:
+        context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I couldn't find any information about that keyword.")
 
 def main():
     # Set up the Telegram bot and add handlers
