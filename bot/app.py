@@ -1,8 +1,43 @@
-from pymongo import MongoClient, DESCENDING
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import logging
 import json
+# import os
+from pymongo import MongoClient, DESCENDING
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
+
+# # Manual MongoDB connection credentials and SSL/TLS certificate paths from environment variables
+# mongo_host = os.environ.get('MONGO_HOST', 'localhost')
+# mongo_port = int(os.environ.get('MONGO_PORT', '27017'))
+# mongo_user = os.environ.get('MONGO_USER', '')
+# mongo_pass = os.environ.get('MONGO_PASS', '')
+# ssl_cert_path = os.environ.get('SSL_CERT_PATH', '')
+
+# # Create a MongoDB client and connect securely
+# client = MongoClient(
+#     host=mongo_host,
+#     port=mongo_port,
+#     username=mongo_user,
+#     password=mongo_pass,
+#     ssl=True,
+#     ssl_certfile=ssl_cert_path,
+#     ssl_cert_reqs='CERT_NONE'
+# )
+
+# Configure logging
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.ERROR)
+
+# Define the error handler
+def error_handler(update: Update, context: CallbackContext):
+    logging.error(msg="Exception occurred", exc_info=context.error)
+
+# Create the Telegram bot
+updater = Updater(token='6028594612:AAGVp2lE1aJtlcx6K1iy-ScAz3Bh0M9_T2c', use_context=True)
+
+# Register the error handler
+updater.dispatcher.add_error_handler(error_handler)
+
+# Connect MongoDB
 client = MongoClient('mongodb://localhost:27017/')
 db = client['chatbot_db']
 
@@ -59,7 +94,7 @@ def add_response(update, context):
     collection.insert_one(doc)
     context.bot.send_message(chat_id=update.effective_chat.id, text="Thanks, I've added that to my responses.")
 
-    
+# Define search location and method   
 def search(update, context):
     keywords = update.message.text.lower().split()
     client = MongoClient('mongodb://localhost:27017/')
@@ -67,7 +102,8 @@ def search(update, context):
     collection = db['response']
     query = {"keywords": {"$all": keywords}}
     result = collection.find_one(query, sort=[('_id', DESCENDING)])
-    
+
+# Set up response message with different search result    
 def handle_message(update, context):
     """Handle incoming messages."""
     message = update.message.text.lower()
@@ -82,12 +118,12 @@ def handle_message(update, context):
             context.bot.send_message(chat_id=update.effective_chat.id, text=response['response'])
             # context.bot.send_message(chat_id=update.effective_chat.id, text="Here's some more information:\n{}".format(response))
             break
-    else:
-        context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I couldn't find any information about that keyword.")
+        else :
+            context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I couldn't find any information about that keyword.")
+            
 
 def main():
     # Set up the Telegram bot and add handlers
-    updater = Updater(token="6028594612:AAGVp2lE1aJtlcx6K1iy-ScAz3Bh0M9_T2c", use_context=True)
     dispatcher = updater.dispatcher
     dispatcher.add_handler(CommandHandler("start", start))
     dispatcher.add_handler(CommandHandler("help", help))
