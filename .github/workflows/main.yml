@@ -39,3 +39,4 @@ jobs:
         docker build -t comp7940:latest .
         docker tag comp7940:latest public.ecr.aws/q1l4k0a8/comp7940:latest
         docker push public.ecr.aws/q1l4k0a8/comp7940:latest
+        aws ecs update-service --cluster comp7940 --service comp7940chatbot --force-new-deployment
