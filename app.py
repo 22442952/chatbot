@@ -142,6 +142,7 @@ def main():
     dispatcher.add_handler(CommandHandler("help", help))
     dispatcher.add_handler(CommandHandler("add_response", add_response))
     dispatcher.add_handler(CommandHandler("end", end))
+    dispatcher.add_handler(CommandHandler("search", search))
     dispatcher.add_handler(MessageHandler(Filters.text, handle_message))
 
     # Start the bot
